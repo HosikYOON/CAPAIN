@@ -1,0 +1,26 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy project to EC2
+        run: |
+          rsync -avz --exclude '.git' ./ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.APP_DIR }}
+
+      - name: Run deploy script on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} "bash ${{ secrets.APP_DIR }}/deploy.sh"
