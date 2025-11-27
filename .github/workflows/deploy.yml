@@ -19,7 +19,7 @@ jobs:
 
       - name: Copy project to EC2
         run: |
-          rsync -avz --exclude '.git' ./ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.APP_DIR }}
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '.git' ./ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.APP_DIR }}
 
       - name: Run deploy script on EC2
         run: |
