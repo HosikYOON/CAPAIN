@@ -105,7 +105,7 @@ if __name__ == "__main__":
     url = "https://www.card-gorilla.com/card/detail/2807"
     benefits = get_card_main_benefits(url)
 
-    print("\n=====!! 추출된 혜택 !!=====")
+    print("\n=====!!! 추출된 혜택 !!!=====")
     for b in benefits:
         print(b)
 
