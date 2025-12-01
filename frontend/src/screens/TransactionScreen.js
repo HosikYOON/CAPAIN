@@ -5,6 +5,36 @@ import EmptyState from '../components/EmptyState';
 import { formatCurrency } from '../utils/currency';
 import { EMPTY_MESSAGES } from '../constants';
 
+// ============================================================
+// TODO: 백엔드 연결 시 삭제 필요
+// ============================================================
+// 현재는 MOCK 거래내역 데이터를 사용하고 있습니다.
+// 백엔드 API 연결 시 이 MOCK_TRANSACTIONS를 삭제하고
+// useEffect에서 실제 API를 호출하여 거래내역을 가져오세요.
+//
+// 백엔드 API 엔드포인트 예시:
+// - GET /api/transactions - 전체 거래내역 조회
+// - GET /api/transactions?category=식비 - 카테고리별 조회
+// - POST /api/transactions/{id}/anomaly - 이상거래 신고
+//
+// 응답 데이터 형식:
+// {
+//   transactions: [
+//     {
+//       id: number,
+//       merchant: string,
+//       businessName: string,
+//       amount: number,
+//       category: string,
+//       date: string (ISO 8601),
+//       notes: string,
+//       cardType: '신용' | '체크',
+//       accumulated?: number,  // 신용카드인 경우
+//       balance?: number        // 체크카드인 경우
+//     }
+//   ]
+// }
+// ============================================================
 const MOCK_TRANSACTIONS = [
     { id: 1, merchant: '스타벅스', businessName: '스타벅스커피코리아(주)', amount: 15000, category: '식비', date: '2024-11-29 10:00', notes: '아메리카노', cardType: '신용', accumulated: 215000 },
     { id: 2, merchant: 'GS25', businessName: 'GS리테일(주)', amount: 5000, category: '교통', date: '2024-11-28 08:30', notes: 'T-money 충전', cardType: '체크', balance: 1250000 },
@@ -21,6 +51,7 @@ export default function TransactionScreen({ navigation }) {
     const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [anomalyCategoryModalVisible, setAnomalyCategoryModalVisible] = useState(false);
     const [isEditingNote, setIsEditingNote] = useState(false);
     const [editedNote, setEditedNote] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -44,14 +75,84 @@ export default function TransactionScreen({ navigation }) {
     };
 
     const handleMarkAsAnomaly = () => {
-        if (selectedTransaction) {
-            setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
-            setModalVisible(false);
-            setTimeout(() => {
-                alert('⚠️ 이상거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.');
+        setModalVisible(false);
+        setTimeout(() => {
+            setAnomalyCategoryModalVisible(true);
+        }, 300);
+    };
+
+    // ============================================================
+    // TODO: 백엔드 API 연결 - 이상거래 신고
+    // ============================================================
+    // 백엔드 연결 시 아래 함수를 수정하여 서버에 이상거래 정보를 전송하세요.
+    //
+    // 예시 코드:
+    // const handleCategorySelect = async (category) => {
+    //     if (!selectedTransaction) return;
+    //
+    //     try {
+    //         const token = await AsyncStorage.getItem('authToken');
+    //         
+    //         // 이상거래 신고 API 호출
+    //         const response = await fetch(`${API_BASE_URL}/transactions/${selectedTransaction.id}/anomaly`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${token}`
+    //             },
+    //             body: JSON.stringify({
+    //                 category: category,  // 'safe', 'suspicious', 'dangerous'
+    //                 merchant: selectedTransaction.merchant,
+    //                 amount: selectedTransaction.amount,
+    //                 timestamp: new Date().toISOString()
+    //             })
+    //         });
+    //
+    //         if (!response.ok) throw new Error('신고 실패');
+    //
+    //         const result = await response.json();
+    //         
+    //         setAnomalyCategoryModalVisible(false);
+    //         setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
+    //
+    //         const messages = {
+    //             safe: '✅ 안전한 거래로 표시되었습니다.',
+    //             suspicious: '🟡 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
+    //             dangerous: '🔴 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
+    //         };
+    //
+    //         setTimeout(() => {
+    //             alert(messages[category]);
+    //             if (category === 'suspicious' || category === 'dangerous') {
+    //                 navigation?.navigate('이상탐지');
+    //             }
+    //         }, 300);
+    //
+    //     } catch (error) {
+    //         console.error('신고 실패:', error);
+    //         alert('신고 처리 중 오류가 발생했습니다.');
+    //     }
+    // };
+    // ============================================================
+    const handleCategorySelect = (category) => {
+        if (!selectedTransaction) return;
+
+        // 현재는 로컬에서만 처리 (백엔드 연결 시 위의 예시 코드로 교체)
+        setAnomalyCategoryModalVisible(false);
+        setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
+
+        const messages = {
+            safe: '✅ 안전한 거래로 표시되었습니다.',
+            suspicious: '🟡 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
+            dangerous: '🔴 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
+        };
+
+        setTimeout(() => {
+            alert(messages[category]);
+            if (category === 'suspicious' || category === 'dangerous') {
                 navigation?.navigate('이상탐지');
-            }, 300);
-        }
+            }
+        }, 300);
     };
 
     const handleSaveNote = () => {
@@ -207,9 +308,88 @@ export default function TransactionScreen({ navigation }) {
                                 <Text style={styles(colors).modalButtonTextCancel}>닫기</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles(colors).modalButtonAnomaly} onPress={handleMarkAsAnomaly}>
-                                <Text style={styles(colors).modalButtonText}>⚠️ 이상거래로 표시</Text>
+                                <Text style={styles(colors).modalButtonText}>⚠️ 이상거래 신고</Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Anomaly Category Selection Modal */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={anomalyCategoryModalVisible}
+                onRequestClose={() => setAnomalyCategoryModalVisible(false)}>
+                <View style={styles(colors).modalOverlay}>
+                    <View style={styles(colors).categoryModalContent}>
+                        <Text style={styles(colors).modalTitle}>⚠️ 이상거래 분류</Text>
+
+                        {selectedTransaction && (
+                            <View style={styles(colors).categoryTransactionInfo}>
+                                <Text style={styles(colors).categoryTransactionName}>
+                                    {selectedTransaction.merchant}
+                                </Text>
+                                <Text style={styles(colors).categoryTransactionAmount}>
+                                    {formatCurrency(selectedTransaction.amount)}
+                                </Text>
+                            </View>
+                        )}
+
+                        <View style={styles(colors).categoryOptions}>
+                            <TouchableOpacity
+                                style={[styles(colors).categoryOption, styles(colors).categoryOptionSafe]}
+                                onPress={() => handleCategorySelect('safe')}>
+                                <Text style={styles(colors).categoryOptionIcon}>🟢</Text>
+                                <View style={styles(colors).categoryOptionContent}>
+                                    <Text style={styles(colors).categoryOptionTitle}>안전</Text>
+                                    <Text style={styles(colors).categoryOptionDesc}>
+                                        본인이 직접 사용한 거래입니다
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles(colors).categoryOption, styles(colors).categoryOptionSuspicious]}
+                                onPress={() => handleCategorySelect('suspicious')}>
+                                <Text style={styles(colors).categoryOptionIcon}>🟡</Text>
+                                <View style={styles(colors).categoryOptionContent}>
+                                    <Text style={styles(colors).categoryOptionTitle}>의심</Text>
+                                    <Text style={styles(colors).categoryOptionDesc}>
+                                        확실하지 않지만 의심스러운 거래입니다
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles(colors).categoryOption, styles(colors).categoryOptionDangerous]}
+                                onPress={() => handleCategorySelect('dangerous')}>
+                                <Text style={styles(colors).categoryOptionIcon}>🔴</Text>
+                                <View style={styles(colors).categoryOptionContent}>
+                                    <Text style={styles(colors).categoryOptionTitle}>위험</Text>
+                                    <Text style={styles(colors).categoryOptionDesc}>
+                                        명백한 사기 또는 도용 거래입니다
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles(colors).reportButton}
+                            onPress={() => {
+                                setAnomalyCategoryModalVisible(false);
+                                setTimeout(() => {
+                                    alert('🚨 신고 접수 완료\n\n고객센터에서 24시간 내 연락드리겠습니다.\n필요시 카드 정지 조치가 진행됩니다.');
+                                }, 300);
+                            }}>
+                            <Text style={styles(colors).reportButtonText}>🚨 고객센터에 신고하기</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles(colors).categoryModalCancel}
+                            onPress={() => setAnomalyCategoryModalVisible(false)}>
+                            <Text style={styles(colors).categoryModalCancelText}>취소</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -280,4 +460,105 @@ const styles = (colors) => StyleSheet.create({
     modalButtonAnomaly: { flex: 1, padding: 14, borderRadius: 8, backgroundColor: colors.warning },
     modalButtonTextCancel: { color: colors.text, textAlign: 'center', fontWeight: 'bold', fontSize: 14 },
     modalButtonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 14 },
+
+    // Category Modal styles
+    categoryModalContent: {
+        backgroundColor: colors.cardBackground,
+        borderRadius: 16,
+        padding: 24,
+        width: '100%',
+        maxWidth: 500,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    categoryModalSubtitle: {
+        fontSize: 14,
+        color: colors.textSecondary,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    categoryTransactionInfo: {
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: colors.background,
+        borderRadius: 12,
+        marginBottom: 20,
+    },
+    categoryTransactionName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.text,
+        marginBottom: 4,
+    },
+    categoryTransactionAmount: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.error,
+    },
+    categoryOptions: {
+        gap: 12,
+        marginBottom: 20,
+    },
+    categoryOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 2,
+    },
+    categoryOptionSafe: {
+        borderColor: colors.success,
+        backgroundColor: colors.success + '10',
+    },
+    categoryOptionSuspicious: {
+        borderColor: colors.warning,
+        backgroundColor: colors.warning + '10',
+    },
+    categoryOptionDangerous: {
+        borderColor: colors.error,
+        backgroundColor: colors.error + '10',
+    },
+    categoryOptionIcon: {
+        fontSize: 32,
+        marginRight: 16,
+    },
+    categoryOptionContent: {
+        flex: 1,
+    },
+    categoryOptionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.text,
+        marginBottom: 4,
+    },
+    categoryOptionDesc: {
+        fontSize: 13,
+        color: colors.textSecondary,
+        lineHeight: 18,
+    },
+    reportButton: {
+        backgroundColor: colors.error,
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    reportButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    categoryModalCancel: {
+        padding: 14,
+        borderRadius: 12,
+        backgroundColor: colors.background,
+        borderWidth: 1,
+        borderColor: colors.border,
+        alignItems: 'center',
+    },
+    categoryModalCancelText: {
+        color: colors.text,
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
 });

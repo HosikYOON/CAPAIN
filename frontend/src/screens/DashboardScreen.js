@@ -9,6 +9,19 @@ import { SkeletonStats, SkeletonChart } from '../components/SkeletonCard';
 import { formatCurrency } from '../utils/currency';
 import { CHART_COLORS, ANIMATION_DELAY } from '../constants';
 
+// ============================================================
+// TODO: 백엔드 연결 시 삭제 필요
+// ============================================================
+// 현재는 MOCK 데이터를 사용하고 있습니다.
+// 백엔드 API 연결 시 이 MOCK_DATA 전체를 삭제하고
+// loadData() 함수에서 실제 API를 호출하도록 변경하세요.
+//
+// 백엔드 API 엔드포인트 예시:
+// - GET /api/dashboard/summary - 대시보드 요약 데이터
+// - GET /api/dashboard/monthly - 월별 지출 데이터
+// - GET /api/dashboard/category - 카테고리별 소비 데이터
+// - GET /api/predictions/next - AI 예측 거래 데이터
+// ============================================================
 const MOCK_DATA = {
     summary: { total_spending: 1250000, total_transactions: 81, average_transaction: 15432, most_used_category: '쇼핑', monthly_trend: '증가', anomaly_count: 3 },
     monthlyData: [
@@ -26,7 +39,15 @@ const MOCK_DATA = {
         { category: '여가', total_amount: 280000, percentage: 9 },
         { category: '교통', total_amount: 125000, percentage: 4 },
         { category: '기타', total_amount: 75000, percentage: 2 },
-    ]
+    ],
+    predictedTransaction: {
+        category: '식비',
+        merchant: '스타벅스',
+        predictedAmount: 15000,
+        couponDiscount: 2000,
+        confidence: 85,
+        predictedDate: '내일 오전'
+    }
 };
 
 export default function DashboardScreen({ navigation }) {
@@ -36,17 +57,66 @@ export default function DashboardScreen({ navigation }) {
     const [summary, setSummary] = useState(null);
     const [monthlyData, setMonthlyData] = useState([]);
     const [categoryData, setCategoryData] = useState([]);
-    const [tooltip, setTooltip] = useState(null); // 터치 시 표시될 툴팁
+    const [tooltip, setTooltip] = useState(null);
+    const [predictedTransaction, setPredictedTransaction] = useState(null);
+    const [couponReceived, setCouponReceived] = useState(false);
 
     const scrollViewRef = useRef(null);
     const categoryRef = useRef(null);
     const insightRef = useRef(null);
 
+    // ============================================================
+    // TODO: 백엔드 API 연결
+    // ============================================================
+    // 백엔드 서버와 연결 시 아래 loadData() 함수를 수정하세요.
+    //
+    // 변경 방법:
+    // 1. API Base URL 설정 (예: const API_BASE_URL = 'http://localhost:5000/api')
+    // 2. MOCK_DATA 대신 실제 fetch/axios 호출로 변경
+    // 3. 에러 처리 추가
+    //
+    // 예시 코드:
+    // const loadData = async () => {
+    //     try {
+    //         const token = await AsyncStorage.getItem('authToken');
+    //         const headers = { 'Authorization': `Bearer ${token}` };
+    //
+    //         // 대시보드 요약 데이터
+    //         const summaryRes = await fetch(`${API_BASE_URL}/dashboard/summary`, { headers });
+    //         const summaryData = await summaryRes.json();
+    //         setSummary(summaryData);
+    //
+    //         // 월별 지출 데이터
+    //         const monthlyRes = await fetch(`${API_BASE_URL}/dashboard/monthly`, { headers });
+    //         const monthlyData = await monthlyRes.json();
+    //         setMonthlyData(monthlyData);
+    //
+    //         // 카테고리별 소비 데이터
+    //         const categoryRes = await fetch(`${API_BASE_URL}/dashboard/category`, { headers });
+    //         const categoryData = await categoryRes.json();
+    //         setCategoryData(categoryData);
+    //
+    //         // AI 예측 거래 데이터 (ML 모델 결과)
+    //         const predictionRes = await fetch(`${API_BASE_URL}/predictions/next`, { headers });
+    //         const predictionData = await predictionRes.json();
+    //         setPredictedTransaction(predictionData);
+    //
+    //     } catch (error) {
+    //         console.error('데이터 로드 실패:', error);
+    //         alert('데이터를 불러오는데 실패했습니다.');
+    //     } finally {
+    //         setLoading(false);
+    //         setRefreshing(false);
+    //     }
+    // };
+    // ============================================================
     const loadData = async () => {
         try {
+            // 현재는 MOCK 데이터 사용 (백엔드 연결 시 위의 예시 코드로 교체)
             setSummary(MOCK_DATA.summary);
             setMonthlyData(MOCK_DATA.monthlyData);
             setCategoryData(MOCK_DATA.categoryData);
+            setPredictedTransaction(MOCK_DATA.predictedTransaction);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -72,6 +142,19 @@ export default function DashboardScreen({ navigation }) {
     const handleAverageTransactionClick = () => {
         // 인사이트 섹션 제목이 완전히 보이도록 더 위로 조정
         scrollViewRef.current?.scrollTo({ y: 950, animated: true });
+    };
+
+    const handleGetCoupon = () => {
+        if (couponReceived) {
+            alert('✅ 이미 쿠폰을 받으셨습니다!');
+            return;
+        }
+        setCouponReceived(true);
+        alert(`🎉 쿠폰 발급 완료!\n\n${predictedTransaction?.merchant}에서 사용 가능한\n${formatCurrency(predictedTransaction?.couponDiscount)} 할인 쿠폰이 발급되었습니다!`);
+    };
+
+    const handlePredictionBannerClick = () => {
+        alert(`🔮 AI 예측 상세\n\n다음 예상 구매:\n• 가맹점: ${predictedTransaction?.merchant}\n• 카테고리: ${predictedTransaction?.category}\n• 예상 금액: ${formatCurrency(predictedTransaction?.predictedAmount)}\n• 예측 시간: ${predictedTransaction?.predictedDate}\n• 신뢰도: ${predictedTransaction?.confidence}%\n\n💡 쿠폰을 받고 ${formatCurrency(predictedTransaction?.couponDiscount)} 할인받으세요!`);
     };
 
     if (loading) {
@@ -118,6 +201,52 @@ export default function DashboardScreen({ navigation }) {
     return (
         <ScrollView ref={scrollViewRef} style={styles(colors).container}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+
+            {/* Banner Ad Section */}
+            {predictedTransaction && (
+                <FadeInView style={styles(colors).bannerAdSection} delay={ANIMATION_DELAY.NONE + 100}>
+                    <TouchableOpacity
+                        style={styles(colors).bannerAd}
+                        activeOpacity={0.8}
+                        onPress={handleGetCoupon}>
+                        <View style={styles(colors).bannerAdHeader}>
+                            <View style={styles(colors).brandLogo}>
+                                <Text style={styles(colors).brandLogoText}>★</Text>
+                            </View>
+                            <Text style={styles(colors).brandName}>{predictedTransaction.merchant}</Text>
+                            <View style={styles(colors).adBadge}>
+                                <Text style={styles(colors).adBadgeText}>AD</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles(colors).bannerAdBody}>
+                            <Text style={styles(colors).bannerAdHeadline}>
+                                ☕ 커피 한 잔의 여유, 특별한 할인까지
+                            </Text>
+                            <Text style={styles(colors).bannerAdSubtitle}>
+                                AI가 예측한 당신의 다음 방문
+                            </Text>
+
+                            <View style={styles(colors).bannerAdOffer}>
+                                <Text style={styles(colors).bannerAdOfferLabel}>특별 할인</Text>
+                                <Text style={styles(colors).bannerAdOfferAmount}>
+                                    {formatCurrency(predictedTransaction.couponDiscount)}
+                                </Text>
+                            </View>
+
+                            <View style={styles(colors).bannerAdCTA}>
+                                <Text style={styles(colors).bannerAdCTAText}>지금 바로 쿠폰받기 ›</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles(colors).bannerAdFooter}>
+                            <Text style={styles(colors).bannerAdFooterText}>
+                                예상 방문시간: {predictedTransaction.predictedDate}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </FadeInView>
+            )}
 
             <FadeInView style={styles(colors).summarySection} delay={ANIMATION_DELAY.NONE}>
                 <Text style={styles(colors).sectionTitle}>💰 이번 달 소비 요약</Text>
@@ -410,5 +539,256 @@ const styles = (colors) => StyleSheet.create({
         color: '#fff',
         opacity: 0.9,
         marginTop: 2
+    },
+
+    // Coupon Button styles
+    couponSection: {
+        padding: 16,
+        paddingBottom: 0,
+    },
+    couponButton: {
+        backgroundColor: colors.primary,
+        borderRadius: 12,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    couponButtonReceived: {
+        backgroundColor: colors.success,
+        opacity: 0.8,
+    },
+    couponIcon: {
+        fontSize: 32,
+        marginRight: 16,
+    },
+    couponContent: {
+        flex: 1,
+    },
+    couponTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 4,
+    },
+    couponDesc: {
+        fontSize: 13,
+        color: '#fff',
+        opacity: 0.9,
+    },
+    couponArrow: {
+        fontSize: 28,
+        color: '#fff',
+        opacity: 0.8,
+    },
+
+    // Prediction Banner styles (at top)
+    predictionBannerTop: {
+        padding: 16,
+        paddingBottom: 8,
+    },
+    predictionCard: {
+        backgroundColor: colors.cardBackground,
+        borderRadius: 16,
+        padding: 20,
+        borderWidth: 2,
+        borderColor: colors.primary,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    predictionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
+    predictionIcon: {
+        fontSize: 28,
+        marginRight: 12,
+    },
+    predictionTitle: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.text,
+    },
+    predictionBadge: {
+        backgroundColor: colors.primary + '20',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    predictionBadgeText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.primary,
+    },
+    predictionContent: {
+        gap: 12,
+        marginBottom: 16,
+    },
+    predictionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    predictionLabel: {
+        fontSize: 14,
+        color: colors.textSecondary,
+    },
+    predictionValue: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.text,
+    },
+    predictionValueAmount: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.primary,
+    },
+    predictionFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+    },
+    predictionCouponText: {
+        flex: 1,
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.warning,
+        marginRight: 12,
+    },
+    predictionCouponButton: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    predictionCouponButtonText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+
+    // Banner Ad styles
+    bannerAdSection: {
+        padding: 16,
+        paddingTop: 8,
+        paddingBottom: 0,
+    },
+    bannerAd: {
+        backgroundColor: '#00704A', // Starbucks green
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 6,
+    },
+    bannerAdHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    brandLogo: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    brandLogoText: {
+        fontSize: 20,
+        color: '#00704A',
+    },
+    brandName: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    adBadge: {
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    adBadgeText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    bannerAdBody: {
+        padding: 20,
+    },
+    bannerAdHeadline: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 8,
+        lineHeight: 24,
+    },
+    bannerAdSubtitle: {
+        fontSize: 13,
+        color: 'rgba(255, 255, 255, 0.9)',
+        marginBottom: 16,
+    },
+    bannerAdOffer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+    bannerAdOfferLabel: {
+        fontSize: 11,
+        color: 'rgba(255, 255, 255, 0.8)',
+        marginBottom: 4,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    bannerAdOfferAmount: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    bannerAdCTA: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 14,
+        alignItems: 'center',
+    },
+    bannerAdCTAText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#00704A',
+    },
+    bannerAdFooter: {
+        padding: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        alignItems: 'center',
+    },
+    bannerAdFooterText: {
+        fontSize: 11,
+        color: 'rgba(255, 255, 255, 0.8)',
     },
 });

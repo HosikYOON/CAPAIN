@@ -5,6 +5,35 @@ import EmptyState from '../components/EmptyState';
 import { formatCurrency } from '../utils/currency';
 import { RISK_COLORS, EMPTY_MESSAGES } from '../constants';
 
+// ============================================================
+// TODO: 백엔드 연결 시 삭제 필요
+// ============================================================
+// 현재는 MOCK 이상거래 데이터를 사용하고 있습니다.
+// 백엔드 API 연결 시 이 MOCK_ANOMALIES를 삭제하고
+// useEffect에서 실제 API를 호출하여 ML 모델이 탐지한 
+// 이상거래 목록을 가져오세요.
+//
+// 백엔드 API 엔드포인트 예시:
+// - GET /api/anomalies - ML 모델이 탐지한 이상거래 목록
+// - POST /api/anomalies/{id}/mark-normal - 정상 거래로 표시
+// - POST /api/anomalies/{id}/block-card - 카드 정지 요청
+//
+// 응답 데이터 형식:
+// {
+//   anomalies: [
+//     {
+//       id: number,
+//       merchant: string,
+//       amount: number,
+//       date: string (ISO 8601),
+//       reason: string,  // 요약된 의심 이유
+//       risk: '높음' | '중간' | '낮음',
+//       details: string,  // 상세 설명
+//       ml_confidence: number  // ML 모델 신뢰도 (0-1)
+//     }
+//   ]
+// }
+// ============================================================
 const MOCK_ANOMALIES = [
     { id: 1, merchant: '명품관', amount: 500000, date: '2024-11-09 03:30', reason: '비정상 시간대 + 큰 금액', risk: '높음', details: '비정상적인 시간대 (새벽 3시)\n평소 거래액보다 10배 높음\n처음 이용하는 가맹점' },
     { id: 2, merchant: '알 수 없음', amount: 300000, date: '2024-11-10 02:15', reason: '새벽 + 다른 지역 + 큰 금액', risk: '높음', details: '새벽 시간대 거래\n평소 활동 지역이 아님\n가맹점 정보 불명확' },
@@ -26,8 +55,36 @@ export default function AnomalyDetectionScreen() {
         setModalVisible(true);
     };
 
+    // ============================================================
+    // TODO: 백엔드 API 연결 - 정상 거래 표시
+    // ============================================================
+    // const handleMarkAsNormal = async () => {
+    //     if (!selectedAnomaly) return;
+    //
+    //     try {
+    //         const token = await AsyncStorage.getItem('authToken');
+    //         const response = await fetch(`${API_BASE_URL}/anomalies/${selectedAnomaly.id}/mark-normal`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${token}`
+    //             }
+    //         });
+    //
+    //         if (!response.ok) throw new Error('처리 실패');
+    //
+    //         setAnomalies(prev => prev.filter(a => a.id !== selectedAnomaly.id));
+    //         setModalVisible(false);
+    //         setTimeout(() => alert('✅ 정상 거래로 표시되었습니다.'), 300);
+    //     } catch (error) {
+    //         console.error('처리 실패:', error);
+    //         alert('처리 중 오류가 발생했습니다.');
+    //     }
+    // };
+    // ============================================================
     const handleMarkAsNormal = () => {
         if (selectedAnomaly) {
+            // 현재는 로컬에서만 처리 (백엔드 연결 시 위의 예시 코드로 교체)
             setAnomalies(prev => prev.filter(a => a.id !== selectedAnomaly.id));
             setModalVisible(false);
             setTimeout(() => {
@@ -36,7 +93,36 @@ export default function AnomalyDetectionScreen() {
         }
     };
 
+    // ============================================================
+    // TODO: 백엔드 API 연결 - 카드 정지 요청
+    // ============================================================
+    // const handleBlockCard = async () => {
+    //     if (!selectedAnomaly) return;
+    //
+    //     try {
+    //         const token = await AsyncStorage.getItem('authToken');
+    //         const response = await fetch(`${API_BASE_URL}/anomalies/${selectedAnomaly.id}/block-card`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${token}`
+    //             }
+    //         });
+    //
+    //         if (!response.ok) throw new Error('요청 실패');
+    //
+    //         setModalVisible(false);
+    //         setTimeout(() => {
+    //             alert('⚠️ 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
+    //         }, 300);
+    //     } catch (error) {
+    //         console.error('요청 실패:', error);
+    //         alert('요청 처리 중 오류가 발생했습니다.');
+    //     }
+    // };
+    // ============================================================
     const handleBlockCard = () => {
+        // 현재는 로컬에서만 처리 (백엔드 연결 시 위의 예시 코드로 교체)
         setModalVisible(false);
         setTimeout(() => {
             alert('⚠️ 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
