@@ -1,0 +1,19 @@
+# FastAPI 핵심
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-dotenv==1.0.0
+
+# 데이터베이스
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.12.1
+
+# 보안
+cryptography==41.0.7  # Fernet 암호화
+slowapi==0.1.9  # Rate Limiting
+python-jose[cryptography]==3.3.0  # JWT
+passlib[bcrypt]==1.7.4  # 비밀번호 해싱
+
+# 유틸리티
+pydantic==2.5.0
+pydantic-settings==2.1.0

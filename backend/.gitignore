@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# 환경 변수 (절대 커밋하지마세요!)
+.env
+.env.local
+.env.production
+
+# 데이터베이스
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로그
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -26,6 +26,53 @@ npm start
 **웹 브라우저**: `http://localhost:19006` 에서 확인  
 **모바일**: Expo Go 앱에서 QR 코드 스캔
 
+### 관리자 대시보드 실행
+
+```bash
+# 관리자 대시보드 디렉토리로 이동
+cd admin
+
+# 의존성 설치
+npm install
+
+# 개발 서버 시작
+npm run dev
+```
+
+**웹 브라우저**: `http://localhost:3000` 에서 확인
+
+### 백엔드 실행 (보안 인프라 완성 ✅)
+
+```bash
+# 백엔드 디렉토리로 이동
+cd backend
+
+# Python 가상 환경 생성 (선택사항)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# 환경 변수 설정
+cp .env.example .env
+# .env 파일을 열어서 ENCRYPTION_KEY, DATABASE_URL 등 설정
+
+# 암호화 키 생성
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# 위 명령으로 생성된 키를 .env의 ENCRYPTION_KEY에 복사
+
+# PostgreSQL 데이터베이스 생성
+# psql에서: CREATE DATABASE caffeine_db;
+
+# 서버 실행
+python -m app.main
+```
+
+**API 문서**: `http://localhost:8000/docs` (Swagger UI)
+
+> **⚠️ 주의**: 백엔드는 보안 인프라만 완성되었습니다. 비즈니스 로직과 ML 모델 연동은 TODO입니다.
+
 ---
 
 ## 📁 프로젝트 구조
@@ -50,10 +97,32 @@ caffeine-app/
 │   ├── App.js            # 메인 앱
 │   └── package.json
 │
-├── backend/              # 백엔드 (향후 추가 예정)
+├── backend/              # FastAPI 백엔드 (보안 인프라 완성 ✅)
+│   ├── app/
+│   │   ├── main.py               # FastAPI 메인 (Rate Limiting 통합)
+│   │   ├── database.py           # DB 연결 설정
+│   │   ├── core/
+│   │   │   ├── config.py        # ✅ 환경 설정
+│   │   │   └── security.py      # ✅ 암호화 유틸리티 (Fernet)
+│   │   ├── middlewares/
+│   │   │   └── audit.py         # ✅ 감사 로그 미들웨어
+│   │   ├── models/
+│   │   │   ├── user.py          # ✅ User 모델 (암호화 적용)
+│   │   │   ├── transaction.py   # ✅ Transaction 모델
+│   │   │   └── audit_log.py     # ✅ AuditLog 모델
+│   │   ├── routers/
+│   │   │   ├── auth.py          # ⚠️ 인증 API (TODO: JWT 구현)
+│   │   │   └── transactions.py  # ⚠️ 거래 API (TODO: 비즈니스 로직)
+│   │   ├── ml/                  # 🚧 ML 모델 (아직 없음!)
+│   │   └── services/            # 🚧 비즈니스 로직 레이어 (아직 없음!)
+│   ├── .env.example             # 환경 변수 예시
+│   ├── requirements.txt         # 필요한 라이브러리
+│   └── README_SECURITY.md       # 보안 기능 가이드
+│
 ├── .github/workflows/    # CI/CD
 └── README.md
 ```
+
 
 ---
 
@@ -227,24 +296,220 @@ const loadData = async () => {
 - **AsyncStorage** - 로컬 저장소
 - **Context API** - 상태 관리
 
+### Admin Dashboard
+- **Next.js 14** - App Router
+- **React** - UI 프레임워크
+- **TypeScript** - 타입 안전성
+- **Tailwind CSS** - 스타일링
+
+### Backend (FastAPI) ✅ 보안 인프라 완성
+- **FastAPI** - 고성능 비동기 웹 프레임워크
+- **PostgreSQL** - 관계형 데이터베이스
+- **SQLAlchemy** - ORM (비동기 지원)
+- **Fernet (cryptography)** - 개인정보 암호화
+- **slowapi** - Rate Limiting
+- **python-jose** - JWT 인증 (TODO)
+- **passlib** - 비밀번호 해싱
+
 ### 추가 설치 필요 (백엔드 연결 시)
 ```bash
+# Frontend
 npm install axios
-# 또는
-npm install @tanstack/react-query
-```
 
-### Backend (권장)
-- **FastAPI** (Python) - ML 모델 연동 용이
-- **PostgreSQL** - 데이터베이스
-- **TensorFlow/PyTorch** - ML 모델
-- **Redis** - 캐싱
+# Backend
+cd backend
+pip install -r requirements.txt
+```
 
 ---
 
-## 🤖 ML 모델 요구사항
+## 🔒 백엔드 보안 기능 (구현 완료)
 
-백엔드에서 다음 ML 모델을 구현해야 합니다:
+### 1. 개인정보 암호화 (PII Encryption)
+- **방식**: Fernet (AES-128 대칭키 암호화)
+- **적용 대상**: `phone_number`, `account_number`, `email`
+- **특징**: 자동 암/복호화 (hybrid_property)
+- **보안**: DB 탈취 시에도 개인정보 보호
+
+### 2. 감사 로그 (Audit Logging)
+- **구현**: FastAPI 미들웨어
+- **기록 내용**: IP, URL, HTTP Method, 처리 시간, 응답 코드
+- **저장**: 민감한 경로는 `audit_logs` 테이블에 영구 저장
+- **보안**: 데이터 접근 추적, 공격 패턴 탐지
+
+### 3. API 속도 제한 (Rate Limiting)
+- **라이브러리**: slowapi
+- **제한 설정**:
+  - `/auth/login`: **5회/분** (무차별 대입 공격 방지)
+  - `/auth/register`: 10회/분
+  - `/transactions`: 60회/분
+  - 기타: 100회/분
+- **보안**: 무차별 대입 공격, 스크래핑 방지
+
+**상세 문서**: `backend/README_SECURITY.md` 참고
+
+---
+
+## 🚧 백엔드 구현 TODO
+
+### ⚠️ 현재 상태: 보안 인프라만 완성 ✅
+
+백엔드의 **보안 기능(암호화, 감사 로그, Rate Limiting)**은 모두 구현되었지만, **비즈니스 로직과 ML 모델 연동**은 아직 구현되지 않았습니다.
+
+### 🔨 구현해야 할 것
+
+#### 1. 인증 시스템 (`routers/auth.py`)
+```python
+# TODO: JWT 토큰 기반 인증 구현
+- [ ] 회원가입 로직 (비밀번호 해싱)
+- [ ] 로그인 로직 (JWT 토큰 생성)
+- [ ] 토큰 검증 미들웨어
+- [ ] 리프레시 토큰 관리
+```
+
+**필요한 작업**:
+```python
+# passlib로 비밀번호 해싱
+from passlib.hash import bcrypt
+hashed = bcrypt.hash("password")
+
+# JWT 토큰 생성
+from jose import jwt
+from datetime import datetime, timedelta
+token = jwt.encode(
+    {"sub": user.id, "exp": datetime.utcnow() + timedelta(minutes=30)},
+    settings.SECRET_KEY,
+    algorithm="HS256"
+)
+```
+
+#### 2. 비즈니스 로직 레이어 (`services/`)
+```
+app/services/
+├── auth_service.py          # 인증 비즈니스 로직
+├── transaction_service.py   # 거래 CRUD + 검색/필터링
+├── user_service.py          # 사용자 관리
+└── ml_service.py            # ML 모델 호출 래퍼
+```
+
+#### 3. ML 모델 연동 (`ml/`)
+```
+app/ml/
+├── __init__.py
+├── model_loader.py          # 저장된 모델 로드
+├── fraud_detection.py       # 이상 거래 탐지
+├── next_purchase.py         # 다음 구매 예측
+└── models/                  # .pkl, .h5 모델 파일 저장
+    ├── fraud_model.pkl
+    └── gru_next_category.h5
+```
+
+**모델 로드 예시**:
+```python
+import joblib
+import tensorflow as tf
+
+# 이상 거래 탐지 모델 (XGBoost/LightGBM)
+fraud_model = joblib.load('app/ml/models/fraud_model.pkl')
+
+# 다음 구매 예측 모델 (GRU)
+
+# 다음 구매 예측 모델 (GRU)
+gru_model = tf.keras.models.load_model('app/ml/models/gru_next_category.h5')
+```
+
+#### 4. API 엔드포인트 구현
+
+**현재 상태**:
+- ✅ `/auth/login`, `/auth/register` (Rate Limiting 적용, JWT TODO)
+- ✅ `/transactions` (Rate Limiting 적용, 비즈니스 로직 TODO)
+
+**추가해야 할 API**:
+```python
+# app/routers/predictions.py (새로 만들기)
+@router.post("/next")
+async def predict_next_purchase(user_id: int, db: Session):
+    """다음 구매 예측 API"""
+    # TODO: ML 모델 호출
+    
+@router.get("/recommendations")
+async def get_recommendations(user_id: int):
+    """맞춤형 쿠폰 추천"""
+    # TODO: 예측 결과 기반 쿠폰 추천
+
+# app/routers/anomalies.py (새로 만들기)  
+@router.get("/")
+async def get_anomalies(user_id: int):
+    """이상 거래 목록 조회"""
+    # TODO: DB에서 is_anomaly=True인 거래 조회
+    
+@router.post("/detect")
+async def detect_anomaly(transaction_data: dict):
+    """실시간 이상 거래 탐지"""
+    # TODO: ML 모델로 이상 거래 판정
+
+# app/routers/dashboard.py (새로 만들기)
+@router.get("/summary")
+async def get_dashboard_summary(user_id: int):
+    """대시보드 요약 통계"""
+    # TODO: 집계 쿼리 (총 지출, 거래 건수 등)
+```
+
+#### 5. ML 모델 API 예시
+
+```python
+# app/ml/fraud_detection.py
+class FraudDetector:
+    def __init__(self, model_path: str):
+        self.model = joblib.load(model_path)
+    
+    def predict(self, transaction_features: dict) -> dict:
+        """
+        이상 거래 탐지
+        
+        Args:
+            transaction_features: {
+                "amount": 50000,
+                "hour": 23,
+                "category": "쇼핑",
+                ...
+            }
+        
+        Returns:
+            {
+                "is_anomaly": True,
+                "risk_level": "높음",
+                "confidence": 0.95,
+                "reason": "평소 거래 패턴과 다름"
+            }
+        """
+        # TODO: 특징 추출 및 예측
+        pass
+
+# app/ml/next_purchase.py
+class NextPurchasePredictor:
+    def __init__(self, model_path: str):
+        self.model = tf.keras.models.load_model(model_path)
+    
+    def predict(self, user_history: list) -> dict:
+        """
+        다음 구매 예측
+        
+        Returns:
+            {
+                "category": "식비",
+                "merchant": "스타벅스",
+                "predicted_amount": 15000,
+                "confidence": 0.85
+            }
+        """
+        # TODO: 시퀀스 데이터 준비 및 예측
+        pass
+```
+
+---
+
+## 🤖 ML 모델 요구사항 (상세)
 
 ### 1. 이상거래 탐지 모델
 - **입력**: 거래 금액, 시간, 가맹점, 위치, 사용자 패턴
@@ -252,6 +517,8 @@ npm install @tanstack/react-query
   - `risk_level`: '높음' | '중간' | '낮음'
   - `confidence`: 0.0 ~ 1.0
   - `reason`: 의심 이유 텍스트
+- **모델 형식**: `.pkl` (XGBoost, LightGBM, RandomForest 등)
+- **저장 위치**: `backend/app/ml/models/fraud_model.pkl`
 
 ### 2. 다음 구매 예측 모델
 - **입력**: 사용자 거래 이력, 시간, 요일, 위치
