@@ -2,7 +2,30 @@
 
 import { Users, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { DashboardStatCard } from '@/components/ui/DashboardStatCard';
+import { CategoryTable } from '@/components/ui/CategoryTable';
 
+// [왕초보 백엔드 연동 가이드]
+// 1. 맨 위에 이 줄을 추가하세요: import { useState, useEffect } from 'react';
+// 2. 아래의 'stats' 변수(여기부터 ]; 까지)를 모두 지우세요.
+// 3. 지운 자리에 아래 코드를 복사해서 붙여넣으세요.
+/*
+const [stats, setStats] = useState([]);
+
+useEffect(() => {
+    // 백엔드에서 대시보드 통계 가져오기
+    const fetchStats = async () => {
+        try {
+            const response = await fetch('/api/v1/dashboard/stats');
+            const data = await response.json();
+            setStats(data);
+        } catch (error) {
+            console.error('통계 데이터를 가져오는데 실패했습니다:', error);
+        }
+    };
+    fetchStats();
+}, []);
+*/
 const stats = [
   { title: '전체 사용자', value: '15,420', trend: '+12.5% 전월 대비', icon: Users, color: 'text-blue-600', trendColor: 'text-green-500' },
   { title: '총 거래 건수', value: '89,234', trend: '+8.2% 전월 대비', icon: ShoppingCart, color: 'text-blue-600', trendColor: 'text-green-500' },
@@ -10,6 +33,27 @@ const stats = [
   { title: '평균 거래액', value: '₩1.4만', trend: '▼ 3.1% 전월 대비', icon: TrendingUp, color: 'text-blue-600', trendColor: 'text-red-500' },
 ];
 
+// [왕초보 백엔드 연동 가이드]
+// 1. 아래의 'lineData' 변수(여기부터 ]; 까지)를 모두 지우세요.
+// 2. 지운 자리에 아래 코드를 복사해서 붙여넣으세요.
+/*
+const [lineData, setLineData] = useState([]);
+
+useEffect(() => {
+    // 백엔드에서 차트 데이터 가져오기
+    const fetchChartData = async () => {
+        try {
+            const response = await fetch('/api/v1/dashboard/charts');
+            const data = await response.json();
+            setLineData(data.dailyTransactions); // 라인 차트 데이터 설정
+            // setBarData(data.categoryConsumption); // 바 차트 데이터도 여기서 설정하면 좋아요
+        } catch (error) {
+            console.error('차트 데이터를 가져오는데 실패했습니다:', error);
+        }
+    };
+    fetchChartData();
+}, []);
+*/
 const lineData = [
   { name: '1', value: 4000 }, { name: '2', value: 3000 }, { name: '3', value: 2000 }, { name: '4', value: 2780 },
   { name: '5', value: 1890 }, { name: '6', value: 2390 }, { name: '7', value: 3490 }, { name: '8', value: 4000 },
@@ -52,20 +96,15 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                <h3 className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</h3>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              </div>
-            </div>
-            <p className={`text-sm font-medium ${stat.trendColor}`}>
-              {stat.trend}
-            </p>
-          </div>
+          <DashboardStatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            trend={stat.trend}
+            icon={stat.icon}
+            color={stat.color}
+            trendColor={stat.trendColor}
+          />
         ))}
       </div>
 
@@ -105,40 +144,7 @@ export default function Dashboard() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800">카테고리 상세</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">거래액</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">거래 건수</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">비율</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {tableData.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 flex items-center">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                    {row.category}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">{row.amount}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">{row.count}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
-                      {row.ratio}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CategoryTable data={tableData} />
     </div>
   );
 }

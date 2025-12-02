@@ -1,20 +1,31 @@
 "use client";
 
 import { AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
-
-interface AnomalyData {
-    id: number;
-    category: string;
-    amount: number;
-    date: string;
-    reason: string;
-    riskLevel: '위험' | '경고' | '주의';
-    status: 'pending' | 'approved' | 'rejected';
-    userId: string;
-    userName: string;
-}
+import { AnomalyData } from '@/types';
+import { AnomalySummaryCard } from '@/components/ui/AnomalySummaryCard';
 
 export default function AnomaliesPage() {
+    // [왕초보 백엔드 연동 가이드]
+    // 1. 맨 위에 이 줄을 추가하세요: import { useState, useEffect } from 'react';
+    // 2. 아래의 'anomalies' 변수(여기부터 ]; 까지)를 모두 지우세요.
+    // 3. 지운 자리에 아래 코드를 복사해서 붙여넣으세요.
+    /*
+    const [anomalies, setAnomalies] = useState([]);
+
+    useEffect(() => {
+        // 백엔드에서 데이터 가져오기
+        const fetchAnomalies = async () => {
+            try {
+                const response = await fetch('/api/v1/anomalies');
+                const data = await response.json();
+                setAnomalies(data);
+            } catch (error) {
+                console.error('데이터를 가져오는데 실패했습니다:', error);
+            }
+        };
+        fetchAnomalies();
+    }, []);
+    */
     const anomalies: AnomalyData[] = [
         {
             id: 1,
@@ -55,15 +66,6 @@ export default function AnomaliesPage() {
     const approvedCount = anomalies.filter(a => a.status === 'approved').length;
     const rejectedCount = anomalies.filter(a => a.status === 'rejected').length;
 
-    const getRiskColor = (level: string) => {
-        switch (level) {
-            case '위험': return 'bg-red-50 text-red-700 border-red-200';
-            case '경고': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-            case '주의': return 'bg-blue-50 text-blue-700 border-blue-200';
-            default: return 'bg-gray-50 text-gray-700 border-gray-200';
-        }
-    };
-
     const getRiskBadge = (level: string) => {
         switch (level) {
             case '위험': return 'bg-red-100 text-red-800';
@@ -82,33 +84,27 @@ export default function AnomaliesPage() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500">대기 중인 알림</p>
-                        <h3 className="text-2xl font-bold text-gray-800 mt-1">{pendingCount}건</h3>
-                    </div>
-                    <div className="p-3 bg-yellow-50 rounded-full">
-                        <Clock className="w-6 h-6 text-yellow-600" />
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500">금일 처리 완료</p>
-                        <h3 className="text-2xl font-bold text-gray-800 mt-1">{approvedCount + rejectedCount}건</h3>
-                    </div>
-                    <div className="p-3 bg-green-50 rounded-full">
-                        <CheckCircle className="w-6 h-6 text-green-600" />
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500">탐지된 위험 금액</p>
-                        <h3 className="text-2xl font-bold text-gray-800 mt-1">₩130.5만</h3>
-                    </div>
-                    <div className="p-3 bg-red-50 rounded-full">
-                        <AlertTriangle className="w-6 h-6 text-red-600" />
-                    </div>
-                </div>
+                <AnomalySummaryCard
+                    title="대기 중인 알림"
+                    value={`${pendingCount}건`}
+                    icon={Clock}
+                    iconColor="text-yellow-600"
+                    iconBgColor="bg-yellow-50"
+                />
+                <AnomalySummaryCard
+                    title="금일 처리 완료"
+                    value={`${approvedCount + rejectedCount}건`}
+                    icon={CheckCircle}
+                    iconColor="text-green-600"
+                    iconBgColor="bg-green-50"
+                />
+                <AnomalySummaryCard
+                    title="탐지된 위험 금액"
+                    value="₩130.5만"
+                    icon={AlertTriangle}
+                    iconColor="text-red-600"
+                    iconBgColor="bg-red-50"
+                />
             </div>
 
             {/* Pending Anomalies List */}
@@ -151,9 +147,25 @@ export default function AnomaliesPage() {
                                     <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm transition-colors">
                                         상세 보기
                                     </button>
+                                    {/* [왕초보 가이드] 거부 버튼 기능 구현하기
+                                        1. onClick 이벤트를 추가해서 백엔드로 요청을 보내야 합니다.
+                                        예시:
+                                        <button onClick={async () => {
+                                            await fetch(`/api/v1/anomalies/${anomaly.id}/reject`, { method: 'POST' });
+                                            // 성공 후 목록 새로고침 필요
+                                        }} ... >
+                                    */}
                                     <button className="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 font-medium text-sm transition-colors">
                                         거부
                                     </button>
+                                    {/* [왕초보 가이드] 승인 버튼 기능 구현하기
+                                        1. onClick 이벤트를 추가해서 백엔드로 요청을 보내야 합니다.
+                                        예시:
+                                        <button onClick={async () => {
+                                            await fetch(`/api/v1/anomalies/${anomaly.id}/approve`, { method: 'POST' });
+                                            // 성공 후 목록 새로고침 필요
+                                        }} ... >
+                                    */}
                                     <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors shadow-sm">
                                         정상 승인
                                     </button>
@@ -164,7 +176,7 @@ export default function AnomaliesPage() {
                 </div>
             </div>
 
-            {/* Processed History (Compact) */}
+            {/* Processed History */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
                     <h3 className="text-lg font-bold text-gray-800">최근 처리 내역</h3>
