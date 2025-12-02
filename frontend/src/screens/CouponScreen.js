@@ -36,7 +36,7 @@ import { EMPTY_MESSAGES } from '../constants';
 //             });
 //             const data = await response.json();
 //             
-//             // ⚠️ 중요: 백엔드에서 daysLeft를 제공하지 않는 경우 계산 필요
+//             //  중요: 백엔드에서 daysLeft를 제공하지 않는 경우 계산 필요
 //             const couponsWithDaysLeft = data.coupons.map(coupon => ({
 //                 ...coupon,
 //                 daysLeft: coupon.status === 'available' 
@@ -216,7 +216,7 @@ export default function CouponScreen() {
     //             // QR 코드 모달 표시
     //         }
     //
-    //         alert(`✅ 쿠폰이 사용되었습니다!`);
+    //         alert(` 쿠폰이 사용되었습니다!`);
     //     } catch (error) {
     //         console.error('쿠폰 사용 실패:', error);
     //         alert('쿠폰 사용 중 오류가 발생했습니다.');

@@ -15,12 +15,12 @@ export default function LoginScreen({ navigation }) {
     const handleLogin = async () => {
         // Validation
         if (isEmpty(email) || isEmpty(password)) {
-            alert('⚠️ 이메일과 비밀번호를 입력해주세요.');
+            alert(' 이메일과 비밀번호를 입력해주세요.');
             return;
         }
 
         if (!isValidEmail(email)) {
-            alert('⚠️ 올바른 이메일 형식을 입력해주세요.');
+            alert(' 올바른 이메일 형식을 입력해주세요.');
             return;
         }
 
@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation }) {
         setLoading(false);
 
         if (!result.success) {
-            alert('❌ ' + result.error);
+            alert(' ' + result.error);
         }
         // 성공 시 자동으로 메인 화면으로 이동 (AuthContext에서 처리)
     };
@@ -42,7 +42,7 @@ export default function LoginScreen({ navigation }) {
                 <View style={styles(colors).content}>
                     {/* Logo Section */}
                     <View style={styles(colors).logoSection}>
-                        <Text style={styles(colors).logo}>☕</Text>
+                        <Text style={styles(colors).logo}></Text>
                         <Text style={styles(colors).appName}>Caffeine</Text>
                         <Text style={styles(colors).tagline}>스마트한 소비 관리</Text>
                     </View>
@@ -79,7 +79,7 @@ export default function LoginScreen({ navigation }) {
                                     autoCapitalize="none"
                                 />
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles(colors).eyeButton}>
-                                    <Text style={styles(colors).eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                                    <Text style={styles(colors).eyeIcon}>{showPassword ? '' : ''}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

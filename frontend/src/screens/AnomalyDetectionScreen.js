@@ -75,7 +75,7 @@ export default function AnomalyDetectionScreen() {
     //
     //         setAnomalies(prev => prev.filter(a => a.id !== selectedAnomaly.id));
     //         setModalVisible(false);
-    //         setTimeout(() => alert('✅ 정상 거래로 표시되었습니다.'), 300);
+    //         setTimeout(() => alert(' 정상 거래로 표시되었습니다.'), 300);
     //     } catch (error) {
     //         console.error('처리 실패:', error);
     //         alert('처리 중 오류가 발생했습니다.');
@@ -88,7 +88,7 @@ export default function AnomalyDetectionScreen() {
             setAnomalies(prev => prev.filter(a => a.id !== selectedAnomaly.id));
             setModalVisible(false);
             setTimeout(() => {
-                alert('✅ 정상 거래로 표시되었습니다.');
+                alert(' 정상 거래로 표시되었습니다.');
             }, 300);
         }
     };
@@ -113,7 +113,7 @@ export default function AnomalyDetectionScreen() {
     //
     //         setModalVisible(false);
     //         setTimeout(() => {
-    //             alert('⚠️ 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
+    //             alert(' 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
     //         }, 300);
     //     } catch (error) {
     //         console.error('요청 실패:', error);
@@ -125,7 +125,7 @@ export default function AnomalyDetectionScreen() {
         // 현재는 로컬에서만 처리 (백엔드 연결 시 위의 예시 코드로 교체)
         setModalVisible(false);
         setTimeout(() => {
-            alert('⚠️ 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
+            alert(' 카드 정지 요청이 접수되었습니다.\n고객센터에서 곧 연락드리겠습니다.');
         }, 300);
     };
 
@@ -150,7 +150,7 @@ export default function AnomalyDetectionScreen() {
     return (
         <View style={styles(colors).container}>
             <View style={styles(colors).header}>
-                <Text style={styles(colors).title}>🔍 이상 거래 탐지</Text>
+                <Text style={styles(colors).title}> 이상 거래 탐지</Text>
                 <Text style={styles(colors).subtitle}>총 {anomalies.length}건의 의심 거래</Text>
             </View>
             {anomalies.length === 0 ? (
@@ -172,7 +172,7 @@ export default function AnomalyDetectionScreen() {
                 onRequestClose={() => setModalVisible(false)}>
                 <View style={styles(colors).modalOverlay}>
                     <View style={styles(colors).modalContent}>
-                        <Text style={styles(colors).modalTitle}>🔍 상세 정보</Text>
+                        <Text style={styles(colors).modalTitle}> 상세 정보</Text>
 
                         {selectedAnomaly && (
                             <>
@@ -188,7 +188,7 @@ export default function AnomalyDetectionScreen() {
                                 </View>
 
                                 <View style={styles(colors).modalSection}>
-                                    <Text style={styles(colors).modalSectionTitle}>⚠️ 조치 방법:</Text>
+                                    <Text style={styles(colors).modalSectionTitle}> 조치 방법:</Text>
                                     <Text style={styles(colors).modalText}>• 본인 거래라면 "정상 거래로 표시"{'\n'}• 의심스럽다면 "카드 정지" 요청</Text>
                                 </View>
                             </>

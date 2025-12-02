@@ -23,17 +23,17 @@ export default function ProfileScreen() {
             };
 
             // 웹 환경에서는 Share API 대신 alert 사용
-            const message = `📊 데이터 내보내기\n\n내보내기 날짜: ${new Date().toLocaleDateString()}\n총 거래: 81건\n총 지출: 1,250,000원\n\n✅ 데이터가 준비되었습니다!`;
+            const message = ` 데이터 내보내기\n\n내보내기 날짜: ${new Date().toLocaleDateString()}\n총 거래: 81건\n총 지출: 1,250,000원\n\n 데이터가 준비되었습니다!`;
             alert(message);
         } catch (error) {
-            alert('❌ 데이터 내보내기 실패');
+            alert(' 데이터 내보내기 실패');
         }
     };
 
     const handleSyncData = () => {
         // 동기화 시뮬레이션
         setTimeout(() => {
-            alert('✅ 데이터 동기화 완료!\n\n최신 거래 내역이 업데이트되었습니다.');
+            alert(' 데이터 동기화 완료!\n\n최신 거래 내역이 업데이트되었습니다.');
         }, 1000);
         alert('🔄 데이터 동기화 중...');
     };
@@ -41,18 +41,18 @@ export default function ProfileScreen() {
     const handleClearCache = async () => {
         try {
             // AsyncStorage에서 테마 외의 캐시 삭제 시뮬레이션
-            alert('🗑️ 캐시 삭제 중...');
+            alert(' 캐시 삭제 중...');
             setTimeout(() => {
-                alert('✅ 캐시가 삭제되었습니다!\n\n앱 성능이 개선될 수 있습니다.');
+                alert(' 캐시가 삭제되었습니다!\n\n앱 성능이 개선될 수 있습니다.');
             }, 800);
         } catch (error) {
-            alert('❌ 캐시 삭제 실패');
+            alert(' 캐시 삭제 실패');
         }
     };
 
     const handleAppInfo = () => {
         setInfoContent({
-            title: 'ℹ️ 앱 정보',
+            title: ' 앱 정보',
             content: `Caffeine - 금융 관리 앱
 
 버전: 1.0.0
@@ -144,7 +144,7 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles(colors).section}>
-                <Text style={styles(colors).sectionTitle}>⚙️ 설정</Text>
+                <Text style={styles(colors).sectionTitle}> 설정</Text>
 
                 <View style={styles(colors).menuItem}>
                     <Text style={styles(colors).menuIcon}>🌙</Text>
@@ -157,14 +157,14 @@ export default function ProfileScreen() {
                     />
                 </View>
 
-                <MenuItem icon="📊" title="데이터 내보내기" onPress={handleExportData} />
+                <MenuItem icon="" title="데이터 내보내기" onPress={handleExportData} />
                 <MenuItem icon="🔄" title="데이터 동기화" onPress={handleSyncData} />
-                <MenuItem icon="🗑️" title="캐시 삭제" onPress={handleClearCache} />
+                <MenuItem icon="" title="캐시 삭제" onPress={handleClearCache} />
             </View>
 
             <View style={styles(colors).section}>
                 <Text style={styles(colors).sectionTitle}>📱 정보</Text>
-                <MenuItem icon="ℹ️" title="앱 정보" onPress={handleAppInfo} />
+                <MenuItem icon="" title="앱 정보" onPress={handleAppInfo} />
                 <MenuItem icon="📄" title="이용약관" onPress={handleTermsOfService} />
                 <MenuItem icon="🔒" title="개인정보 처리방침" onPress={handlePrivacyPolicy} />
             </View>

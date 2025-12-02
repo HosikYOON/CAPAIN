@@ -35,7 +35,7 @@ import { EMPTY_MESSAGES } from '../constants';
 //   ]
 // }
 //
-// ⚠️ 중요: ID 타입 변환
+//  중요: ID 타입 변환
 // 백엔드가 숫자 ID를 반환하는 경우 문자열로 변환 필요:
 // const transactionsData = response.data.map(t => ({
 //     ...t,
@@ -124,9 +124,9 @@ export default function TransactionScreen({ navigation }) {
     //         setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
     //
     //         const messages = {
-    //             safe: '✅ 안전한 거래로 표시되었습니다.',
-    //             suspicious: '🟡 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
-    //             dangerous: '🔴 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
+    //             safe: ' 안전한 거래로 표시되었습니다.',
+    //             suspicious: ' 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
+    //             dangerous: ' 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
     //         };
     //
     //         setTimeout(() => {
@@ -150,9 +150,9 @@ export default function TransactionScreen({ navigation }) {
         setTransactions(prev => prev.filter(t => t.id !== selectedTransaction.id));
 
         const messages = {
-            safe: '✅ 안전한 거래로 표시되었습니다.',
-            suspicious: '🟡 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
-            dangerous: '🔴 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
+            safe: ' 안전한 거래로 표시되었습니다.',
+            suspicious: ' 의심 거래로 표시되었습니다.\n이상탐지 탭에서 확인할 수 있습니다.',
+            dangerous: ' 위험 거래로 표시되었습니다.\n고객센터로 자동 신고되었습니다.'
         };
 
         setTimeout(() => {
@@ -170,7 +170,7 @@ export default function TransactionScreen({ navigation }) {
             ));
             setSelectedTransaction({ ...selectedTransaction, notes: editedNote });
             setIsEditingNote(false);
-            alert('✅ 메모가 저장되었습니다.');
+            alert(' 메모가 저장되었습니다.');
         }
     };
 
@@ -203,7 +203,7 @@ export default function TransactionScreen({ navigation }) {
 
             {/* Search Bar */}
             <View style={styles(colors).searchContainer}>
-                <Text style={styles(colors).searchIcon}>🔍</Text>
+                <Text style={styles(colors).searchIcon}></Text>
                 <TextInput
                     style={styles(colors).searchInput}
                     placeholder="가맹점, 카테고리, 메모로 검색..."
@@ -298,14 +298,14 @@ export default function TransactionScreen({ navigation }) {
                                                 <Text style={styles(colors).detailValue}>
                                                     {selectedTransaction.notes || '(메모 없음)'}
                                                 </Text>
-                                                <Text style={styles(colors).noteEditHint}>✏️</Text>
+                                                <Text style={styles(colors).noteEditHint}></Text>
                                             </TouchableOpacity>
                                         )}
                                     </View>
                                 </View>
 
                                 <View style={styles(colors).modalSection}>
-                                    <Text style={styles(colors).modalSectionTitle}>⚠️ 의심되는 거래인가요?</Text>
+                                    <Text style={styles(colors).modalSectionTitle}> 의심되는 거래인가요?</Text>
                                     <Text style={styles(colors).modalText}>이 거래가 의심스럽다면 "이상거래로 표시"를 눌러주세요.</Text>
                                 </View>
                             </>
@@ -316,7 +316,7 @@ export default function TransactionScreen({ navigation }) {
                                 <Text style={styles(colors).modalButtonTextCancel}>닫기</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles(colors).modalButtonAnomaly} onPress={handleMarkAsAnomaly}>
-                                <Text style={styles(colors).modalButtonText}>⚠️ 이상거래 신고</Text>
+                                <Text style={styles(colors).modalButtonText}> 이상거래 신고</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -331,7 +331,7 @@ export default function TransactionScreen({ navigation }) {
                 onRequestClose={() => setAnomalyCategoryModalVisible(false)}>
                 <View style={styles(colors).modalOverlay}>
                     <View style={styles(colors).categoryModalContent}>
-                        <Text style={styles(colors).modalTitle}>⚠️ 이상거래 분류</Text>
+                        <Text style={styles(colors).modalTitle}> 이상거래 분류</Text>
 
                         {selectedTransaction && (
                             <View style={styles(colors).categoryTransactionInfo}>
@@ -348,7 +348,7 @@ export default function TransactionScreen({ navigation }) {
                             <TouchableOpacity
                                 style={[styles(colors).categoryOption, styles(colors).categoryOptionSafe]}
                                 onPress={() => handleCategorySelect('safe')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🟢</Text>
+                                <Text style={styles(colors).categoryOptionIcon}></Text>
                                 <View style={styles(colors).categoryOptionContent}>
                                     <Text style={styles(colors).categoryOptionTitle}>안전</Text>
                                     <Text style={styles(colors).categoryOptionDesc}>
@@ -360,7 +360,7 @@ export default function TransactionScreen({ navigation }) {
                             <TouchableOpacity
                                 style={[styles(colors).categoryOption, styles(colors).categoryOptionSuspicious]}
                                 onPress={() => handleCategorySelect('suspicious')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🟡</Text>
+                                <Text style={styles(colors).categoryOptionIcon}></Text>
                                 <View style={styles(colors).categoryOptionContent}>
                                     <Text style={styles(colors).categoryOptionTitle}>의심</Text>
                                     <Text style={styles(colors).categoryOptionDesc}>
@@ -372,7 +372,7 @@ export default function TransactionScreen({ navigation }) {
                             <TouchableOpacity
                                 style={[styles(colors).categoryOption, styles(colors).categoryOptionDangerous]}
                                 onPress={() => handleCategorySelect('dangerous')}>
-                                <Text style={styles(colors).categoryOptionIcon}>🔴</Text>
+                                <Text style={styles(colors).categoryOptionIcon}></Text>
                                 <View style={styles(colors).categoryOptionContent}>
                                     <Text style={styles(colors).categoryOptionTitle}>위험</Text>
                                     <Text style={styles(colors).categoryOptionDesc}>
