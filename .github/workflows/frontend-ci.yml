@@ -2,9 +2,9 @@ name: Frontend CI (build, test, lint)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "frontend-dev-sjw" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "frontend-dev-sjw" ]
 
 jobs:
   frontend-ci:
