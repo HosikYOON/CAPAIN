@@ -1,3 +1,84 @@
+# 🎯 초간단 폴더 재정리 가이드 (Windows 탐색기 버전)
+
+## ⚠️ 시작 전 필수! 백업
+
+**탐색기에서**:
+1. `caffeine-app` 폴더 우클릭 → 복사
+2. 같은 위치(`Desktop\1129`)에 붙여넣기
+3. 이름 변경: `caffeine-app-백업-20241202`
+
+✅ 백업 완료! 이제 안심하고 작업하세요.
+
+---
+
+## 📁 1단계: 폴더 이름 바꾸기 (탐색기)
+
+### 현재 caffeine-app 폴더 안에서:
+
+1. **backend 폴더** 우클릭 → 이름 바꾸기 → `10_backend_api`
+2. **frontend 폴더** 우클릭 → 이름 바꾸기 → `20_frontend_user`
+3. **admin 폴더** 우클릭 → 이름 바꾸기 → `25_frontend_admin`
+
+✅ 기본 폴더 이름 변경 완료!
+
+---
+
+## 📁 2단계: 새 폴더 만들기 (PowerShell)
+
+### PowerShell에서 실행:
+
+```powershell
+# caffeine-app 폴더로 이동
+cd c:\Users\hi\Desktop\1129\caffeine-app
+
+# 새 폴더 생성 (PowerShell 문법)
+mkdir 00_docs_core
+mkdir 00_docs_core\design
+mkdir 00_docs_core\manuals
+
+mkdir 30_ai_fds
+mkdir 30_ai_fds\model_train
+mkdir 30_ai_fds\model_inference
+
+mkdir 40_ai_llm
+mkdir 40_ai_llm\prompt_eng
+mkdir 40_ai_llm\lang_chain
+
+mkdir 50_data_store
+mkdir 50_data_store\init_sql
+mkdir 50_data_store\migrations
+```
+
+또는 **탐색기에서 직접**:
+- caffeine-app 폴더 안에서 우클릭 → 새로 만들기 → 폴더
+- 폴더 이름: `00_docs_core`, `30_ai_fds`, `40_ai_llm`, `50_data_store`
+- 각 폴더 안에 하위 폴더 생성
+
+---
+
+## 📄 3단계: 문서 파일 이동 (탐색기)
+
+### 다음 파일들을 `00_docs_core\manuals\` 폴더로 이동:
+
+**탐색기에서 드래그 앤 드롭**:
+- ✂️ `README.md`
+- ✂️ `README_SECURITY.md` (backend 폴더 안에 있음)
+- ✂️ `README_SECURITY_PRIORITIES.md` (backend 폴더 안에 있음)
+- ✂️ `TEAM_GUIDE.md` (admin 폴더 안에 있음)
+- ✂️ `BACKEND_INTEGRATION_GUIDE.md`
+- ✂️ `PROJECT_HANDOFF.md`
+- ✂️ `MIGRATION_PLAN.md`
+
+---
+
+## 📝 4단계: 루트 README.md 새로 만들기
+
+**메모장으로 새 파일 만들기**:
+
+1. 메모장 열기
+2. 아래 내용 복사해서 붙여넣기:
+
+```markdown
 # ACT_CFI - Caffeine Financial Intelligence
 
 AI 기반 금융 관리 시스템
@@ -154,3 +235,11 @@ npm install
 **10_backend_api 안에서**:
 ```powershell
 mkdir app_main, routers_user, routers_admin, database
+
+# app/ 폴더 내용을 기능별로 분리
+# (이건 복잡하니까 일단 스킵하셔도 됩니다!)
+```
+
+---
+
+**이대로만 하면 끝! 막히는 부분 있으면 바로 물어보세요!** 🚀
