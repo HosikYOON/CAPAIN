@@ -8,7 +8,6 @@ import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 import DashboardScreen from './src/screens/DashboardScreen';
-import AnomalyDetectionScreen from './src/screens/AnomalyDetectionScreen';
 import TransactionScreen from './src/screens/TransactionScreen';
 import CouponScreen from './src/screens/CouponScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -23,7 +22,6 @@ const TabBarIcon = ({ name, focused }) => {
     '대시보드': '📊',
     '거래내역': '💳',
     '쿠폰함': '🎁',
-    '이상탐지': '🔍',
     '프로필': '👤'
   };
   return <Text style={{ fontSize: 24, opacity: focused ? 1 : 0.5 }}>{icons[name] || '📱'}</Text>;
@@ -55,7 +53,6 @@ function MainTabs() {
       <Tab.Screen name="대시보드" component={DashboardScreen} />
       <Tab.Screen name="거래내역" component={TransactionScreen} />
       <Tab.Screen name="쿠폰함" component={CouponScreen} />
-      <Tab.Screen name="이상탐지" component={AnomalyDetectionScreen} />
       <Tab.Screen name="프로필" component={ProfileScreen} />
     </Tab.Navigator>
   );
