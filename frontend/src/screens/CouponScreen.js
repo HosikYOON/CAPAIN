@@ -35,7 +35,16 @@ import { EMPTY_MESSAGES } from '../constants';
 //                 headers: { 'Authorization': `Bearer ${token}` }
 //             });
 //             const data = await response.json();
-//             setCoupons(data.coupons);
+//             
+//             // ⚠️ 중요: 백엔드에서 daysLeft를 제공하지 않는 경우 계산 필요
+//             const couponsWithDaysLeft = data.coupons.map(coupon => ({
+//                 ...coupon,
+//                 daysLeft: coupon.status === 'available' 
+//                     ? calculateDaysLeft(coupon.expiryDate) 
+//                     : undefined
+//             }));
+//             
+//             setCoupons(couponsWithDaysLeft);
 //         } catch (error) {
 //             console.error('쿠폰 로드 실패:', error);
 //         }
@@ -43,6 +52,21 @@ import { EMPTY_MESSAGES } from '../constants';
 //     fetchCoupons();
 // }, []);
 // ============================================================
+
+// Helper Function: 만료일까지 남은 일수 계산
+const calculateDaysLeft = (expiryDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간 부분 제거 (날짜만 비교)
+
+    const expiry = new Date(expiryDate);
+    expiry.setHours(0, 0, 0, 0);
+
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return Math.max(0, diffDays); // 음수 방지
+};
+
 
 const MOCK_COUPONS = [
     {

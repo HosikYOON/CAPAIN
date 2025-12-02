@@ -88,7 +88,12 @@ export default function DashboardScreen({ navigation }) {
     //
     //         // 월별 지출 데이터
     //         const monthlyRes = await fetch(`${API_BASE_URL}/dashboard/monthly`, { headers });
-    //         const monthlyData = await monthlyRes.json();
+    //         const monthlyDataRaw = await monthlyRes.json();
+    //         // ⚠️ 날짜 형식 변환: '2024-06-01' → '2024-06'
+    //         const monthlyData = monthlyDataRaw.map(item => ({
+    //             month: item.month.substring(0, 7),
+    //             total_amount: item.total_amount
+    //         }));
     //         setMonthlyData(monthlyData);
     //
     //         // 카테고리별 소비 데이터

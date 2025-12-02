@@ -114,19 +114,30 @@ export const AuthProvider = ({ children }) => {
      */
     const checkLoginStatus = async () => {
         try {
-            // AsyncStorage에서 사용자 정보 가져오기
-            // (휴대폰 저장소에서 읽기)
+            // ⚠️ TODO: 백엔드 연결 시 토큰 검증 추가 필요
+            // const token = await AsyncStorage.getItem('authToken');
+            // if (!token) {
+            //     setLoading(false);
+            //     return;
+            // }
+            // const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+            //     headers: { 'Authorization': `Bearer ${token}` }
+            // });
+            // if (response.ok) {
+            //     const userData = await response.json();
+            //     setUser(userData);
+            // } else {
+            //     await AsyncStorage.removeItem('authToken');
+            //     await AsyncStorage.removeItem('user');
+            // }
+            // 현재는 저장된 사용자 정보만 확인 (토큰 검증 없음)
             const userData = await AsyncStorage.getItem('user');
-
             if (userData) {
-                // 문자열을 객체로 변환 (JSON)
                 setUser(JSON.parse(userData));
             }
         } catch (error) {
-            // 에러 발생 시 콘솔에 출력
             console.error('로그인 상태 확인 실패:', error);
         } finally {
-            // 성공/실패 관계없이 로딩 완료
             setLoading(false);
         }
     };
@@ -165,10 +176,15 @@ export const AuthProvider = ({ children }) => {
      *     return { success: true };
      * } else {
      *     const error = await response.json();
-     *     return { success: false, error: error.message };
-     * }
-     * ```
-     */
+*     return { success: false, error: error.message };
+ * }
+ * ```
+ * 
+ * ⚠️ 중요: 위 예시 코드에서 반드시 토큰을 저장해야 합니다!
+ * - 토큰은 모든 API 호출 시 Authorization 헤더에 필요
+ * - AsyncStorage.setItem('authToken', token) 또는
+ * - SecureStore.setItemAsync('authToken', token) 사용
+ */
     const login = async (email, password) => {
         // ⚠️ 현재는 Mock (가짜) 로그인
         // 🔴 백엔드 연결 시 이 부분을 API 호출로 교체하세요!
@@ -286,14 +302,18 @@ export const AuthProvider = ({ children }) => {
      * ```
      */
     const logout = async () => {
+        // ⚠️ TODO: 백엔드 연결 시 서버에 로그아웃 알림 (선택사항)
+        // const token = await AsyncStorage.getItem('authToken');
+        // await fetch(`${API_BASE_URL}/auth/logout`, {
+        //     method: 'POST',
+        //     headers: { 'Authorization': `Bearer ${token}` }
+        // });
         // AsyncStorage에서 삭제
         await AsyncStorage.removeItem('user');
-
+        // 🔴 백엔드 연결 시 토큰도 삭제:
+        // await AsyncStorage.removeItem('authToken');
         // State 초기화 (null = 로그인 안 됨)
         setUser(null);
-
-        // 🔴 백엔드 연결 시 추가:
-        // await AsyncStorage.removeItem('token');
     };
 
     // ═══ Context 제공 ═══

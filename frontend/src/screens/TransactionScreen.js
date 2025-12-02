@@ -34,6 +34,14 @@ import { EMPTY_MESSAGES } from '../constants';
 //     }
 //   ]
 // }
+//
+// ⚠️ 중요: ID 타입 변환
+// 백엔드가 숫자 ID를 반환하는 경우 문자열로 변환 필요:
+// const transactionsData = response.data.map(t => ({
+//     ...t,
+//     id: String(t.id) // 숫자 → 문자열 변환
+// }));
+// setTransactions(transactionsData);
 // ============================================================
 const MOCK_TRANSACTIONS = [
     { id: 1, merchant: '스타벅스', businessName: '스타벅스커피코리아(주)', amount: 15000, category: '식비', date: '2024-11-29 10:00', notes: '아메리카노', cardType: '신용', accumulated: 215000 },
