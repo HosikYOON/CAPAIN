@@ -1,9 +1,37 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { PieChart, TrendingUp } from 'lucide-react';
 import { ConsumptionItem } from '@/components/ui/ConsumptionItem';
+import { getConsumptionSummary } from '@/services/consumption';
+import { ConsumptionItemData } from '@/types';
+
+// [왕초보 백엔드 연동 가이드]
+// 1. services/consumption.ts 파일을 열어서 getConsumptionSummary() 함수를 수정하세요
+// 2. 현재는 mock 데이터를 반환하지만, 실제 API 호출로 변경하면 됩니다
+// 3. 예시:
+//    const response = await fetch('/api/v1/consumption/summary');
+//    const data = await response.json();
+//    return data;
 
 export default function ConsumptionPage() {
+    const [consumptionData, setConsumptionData] = useState<ConsumptionItemData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getConsumptionSummary();
+                setConsumptionData(data.items);
+            } catch (error) {
+                console.error('소비 데이터를 가져오는데 실패했습니다:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
     return (
         <div className="space-y-6">
             <div className="mb-6">
@@ -27,41 +55,18 @@ export default function ConsumptionPage() {
                         <TrendingUp className="w-5 h-5 text-gray-400" />
                     </div>
                     <div className="space-y-4">
-                        {/* [왕초보 백엔드 연동 가이드]
-                            1. 맨 위에 이 줄을 추가하세요: import { useState, useEffect } from 'react';
-                            2. 아래의 대괄호 [] 안에 있는 내용(여기부터 map 함수 전까지)을 모두 지우세요.
-                            3. 지운 자리에 'consumptionData' 변수를 넣으세요.
-                            4. 그리고 컴포넌트 안쪽에 아래 코드를 추가하세요.
-                            
-                            const [consumptionData, setConsumptionData] = useState([]);
-
-                            useEffect(() => {
-                                // 백엔드에서 소비 데이터 가져오기
-                                const fetchConsumption = async () => {
-                                    try {
-                                        const response = await fetch('/api/v1/consumption/summary');
-                                        const data = await response.json();
-                                        setConsumptionData(data);
-                                    } catch (error) {
-                                        console.error('소비 데이터를 가져오는데 실패했습니다:', error);
-                                    }
-                                };
-                                fetchConsumption();
-                            }, []);
-                            
-                        */}
-                        {[
-                            { name: '식비', amount: '₩450,000', percent: '35%' },
-                            { name: '쇼핑', amount: '₩320,000', percent: '25%' },
-                            { name: '교통', amount: '₩150,000', percent: '12%' },
-                        ].map((item, i) => (
-                            <ConsumptionItem
-                                key={i}
-                                name={item.name}
-                                amount={item.amount}
-                                percent={item.percent}
-                            />
-                        ))}
+                        {loading ? (
+                            <p className="text-gray-400 text-center">로딩 중...</p>
+                        ) : (
+                            consumptionData.map((item, i) => (
+                                <ConsumptionItem
+                                    key={i}
+                                    name={item.name}
+                                    amount={item.amount}
+                                    percent={item.percent}
+                                />
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

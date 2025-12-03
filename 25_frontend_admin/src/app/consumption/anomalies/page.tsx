@@ -1,79 +1,45 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
 import { AnomalyData } from '@/types';
 import { AnomalySummaryCard } from '@/components/ui/AnomalySummaryCard';
+import { getAnomalies } from '@/services/anomalies';
+import { getRiskBadge, getRiskIconBg, getRiskIconColor } from '@/utils/anomaly';
+
+// [왕초보 백엔드 연동 가이드]
+// 1. services/anomalies.ts 파일을 열어서 getAnomalies() 함수를 수정하세요
+// 2. 현재는 mock 데이터를 반환하지만, 실제 API 호출로 변경하면 됩니다
+// 3. 예시:
+//    const response = await fetch('/api/v1/anomalies');
+//    const data = await response.json();
+//    return data;
 
 export default function AnomaliesPage() {
-    // [왕초보 백엔드 연동 가이드]
-    // 1. 맨 위에 이 줄을 추가하세요: import { useState, useEffect } from 'react';
-    // 2. 아래의 'anomalies' 변수(여기부터 ]; 까지)를 모두 지우세요.
-    // 3. 지운 자리에 아래 코드를 복사해서 붙여넣으세요.
-    /*
-    const [anomalies, setAnomalies] = useState([]);
+    const [anomalies, setAnomalies] = useState<AnomalyData[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 백엔드에서 데이터 가져오기
-        const fetchAnomalies = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch('/api/v1/anomalies');
-                const data = await response.json();
+                const data = await getAnomalies();
                 setAnomalies(data);
             } catch (error) {
-                console.error('데이터를 가져오는데 실패했습니다:', error);
+                console.error('이상 거래 데이터를 가져오는데 실패했습니다:', error);
+            } finally {
+                setLoading(false);
             }
         };
-        fetchAnomalies();
+        fetchData();
     }, []);
-    */
-    const anomalies: AnomalyData[] = [
-        {
-            id: 1,
-            category: '해외결제',
-            amount: 1250000,
-            date: '2024-11-29 03:45',
-            reason: '평소 거래 패턴과 다름 (심야 시간 + 고액)',
-            riskLevel: '위험',
-            status: 'pending',
-            userId: 'user_001',
-            userName: '김철수'
-        },
-        {
-            id: 2,
-            category: '게임',
-            amount: 55000,
-            date: '2024-11-29 14:20',
-            reason: '단시간 다회 결제 시도 (5분 내 3회)',
-            riskLevel: '경고',
-            status: 'pending',
-            userId: 'user_042',
-            userName: '이영희'
-        },
-        {
-            id: 3,
-            category: '편의점',
-            amount: 250000,
-            date: '2024-11-28 23:10',
-            reason: '카테고리 평균 대비 고액 결제',
-            riskLevel: '주의',
-            status: 'approved',
-            userId: 'user_103',
-            userName: '박민수'
-        },
-    ];
+
+    if (loading) {
+        return <div className="flex items-center justify-center h-64">로딩 중...</div>;
+    }
 
     const pendingCount = anomalies.filter(a => a.status === 'pending').length;
     const approvedCount = anomalies.filter(a => a.status === 'approved').length;
     const rejectedCount = anomalies.filter(a => a.status === 'rejected').length;
-
-    const getRiskBadge = (level: string) => {
-        switch (level) {
-            case '위험': return 'bg-red-100 text-red-800';
-            case '경고': return 'bg-yellow-100 text-yellow-800';
-            case '주의': return 'bg-blue-100 text-blue-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
 
     return (
         <div className="space-y-6">
@@ -120,10 +86,8 @@ export default function AnomaliesPage() {
                         <div key={anomaly.id} className="p-6 hover:bg-gray-50 transition-colors">
                             <div className="flex items-start justify-between">
                                 <div className="flex gap-4">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${anomaly.riskLevel === '위험' ? 'bg-red-100' : anomaly.riskLevel === '경고' ? 'bg-yellow-100' : 'bg-blue-100'
-                                        }`}>
-                                        <AlertTriangle className={`w-6 h-6 ${anomaly.riskLevel === '위험' ? 'text-red-600' : anomaly.riskLevel === '경고' ? 'text-yellow-600' : 'text-blue-600'
-                                            }`} />
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${getRiskIconBg(anomaly.riskLevel)}`}>
+                                        <AlertTriangle className={`w-6 h-6 ${getRiskIconColor(anomaly.riskLevel)}`} />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
@@ -185,8 +149,7 @@ export default function AnomaliesPage() {
                     {anomalies.filter(a => a.status !== 'pending').map((anomaly) => (
                         <div key={anomaly.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${anomaly.status === 'approved' ? 'bg-green-100' : 'bg-red-100'
-                                    }`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${anomaly.status === 'approved' ? 'bg-green-100' : 'bg-red-100'}`}>
                                     {anomaly.status === 'approved' ? (
                                         <CheckCircle className="w-5 h-5 text-green-600" />
                                     ) : (
@@ -199,8 +162,7 @@ export default function AnomaliesPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${anomaly.status === 'approved' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                                    }`}>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${anomaly.status === 'approved' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                                     {anomaly.status === 'approved' ? '정상 승인됨' : '거부됨'}
                                 </span>
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
